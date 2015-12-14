@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ "" == "$1" ]
+then
+        PASS=`pwgen -c -s -B -n 20 1`
+        echo "Passwort: $PASS"
+
+else
+        PASS="$1"
+fi
+
+
+
+python -c 'import crypt; print(crypt.crypt("'$PASS'", "$6$'`pwgen -c -s -B -n 8 1`'"))'
