@@ -56,7 +56,7 @@ while getopts ":in:d:" opt; do
 done
 
 shift $(($OPTIND - 1))
-echo $1
+
 if [ "$1" != "" ] && [ "$PASS" == "" ]
 then
    PASS=$1
@@ -64,14 +64,14 @@ fi
 
 if [ INTERACTIVE == false ] && [ "" == "$1" ]
 then
-        PASS=`pwgen -c -s -B -n $LENGTH_PWD $NUM_PWD `
+        PASS=`pwgen -c -s -B -n $DIGITS_PWD $NUM_PWD `
 
 fi
 
 
 if [ $NUM_PWD -gt 1 ] && [ "$PASS" == "" ]
 then
-   for PASS in `pwgen -c -s -B -n $LENGTH_PWD $NUM_PWD`; do
+   for PASS in `pwgen -c -s -B -n $DIGITS_PWD $NUM_PWD`; do
 
        SHA_SALTED=$(python -c 'import crypt; print(crypt.crypt("'$PASS'", "$6$'`pwgen -c -s -B -n 8 1`'"))')
        MYSQL=$(python -c 'from hashlib import sha1; print "*" + sha1(sha1("'$PASS'").digest()).hexdigest().upper()')
