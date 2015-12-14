@@ -1,7 +1,9 @@
 #!/bin/bash
 # Multi-Password-Generator
-# Usage instructions
+# Author: toughiq
+# Inspired by: voxel
 
+# Usage instructions
 usage() {
     echo "usage: $0 [ARGS] [optional: PASSWORD]"
     echo " -i    Interactive Mode."
