@@ -25,6 +25,16 @@ interactive() {
 
 }
 
+generate_password() {
+       SHA_SALTED=$(python -c 'import crypt; print(crypt.crypt("'$PASS'", "$6$'`pwgen -c -s -B -n 8 1`'"))')
+       MYSQL=$(python -c 'from hashlib import sha1; print "*" + sha1(sha1("'$PASS'").digest()).hexdigest().upper()')
+
+       echo "Your Password: $PASS"
+       echo "SHA salted: $SHA_SALTED"
+       echo "MySQL: $MYSQL"
+
+}
+
 
 # Parse arguments
 while getopts ":in:d:" opt; do
@@ -72,22 +82,11 @@ fi
 if [ $NUM_PWD -gt 1 ] && [ "$PASS" == "" ]
 then
    for PASS in `pwgen -c -s -B -n $DIGITS_PWD $NUM_PWD`; do
-
-       SHA_SALTED=$(python -c 'import crypt; print(crypt.crypt("'$PASS'", "$6$'`pwgen -c -s -B -n 8 1`'"))')
-       MYSQL=$(python -c 'from hashlib import sha1; print "*" + sha1(sha1("'$PASS'").digest()).hexdigest().upper()')
-
-       echo "Your Password: $PASS"
-       echo "SHA salted: $SHA_SALTED"
-       echo "MySQL: $MYSQL"
-       echo "------"
+   generate_password
+   echo "------"
    done
 else
-       SHA_SALTED=$(python -c 'import crypt; print(crypt.crypt("'$PASS'", "$6$'`pwgen -c -s -B -n 8 1`'"))')
-       MYSQL=$(python -c 'from hashlib import sha1; print "*" + sha1(sha1("'$PASS'").digest()).hexdigest().upper()')
-
-       echo "Your Password: $PASS"
-       echo "SHA salted: $SHA_SALTED"
-       echo "MySQL: $MYSQL"
+      generate_password 
 fi
 
 
