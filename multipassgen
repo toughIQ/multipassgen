@@ -1,14 +1,93 @@
 #!/bin/bash
 
-if [ "" == "$1" ]
-then
-        PASS=`pwgen -c -s -B -n 20 1`
-        echo "Passwort: $PASS"
+usage() {
+    echo "usage: $0 [ARGS] [optional: PASSWORD]"
+    echo " -i    Interactive Mode."
+    echo " -n    Number of Passwords to generate (default 1)"
+    echo " -d    Digits of password. (default 20)"
+}
 
-else
-        PASS="$1"
+PASS=""
+INTERACTIVE=0
+LENGTH_PWD=20
+NUM_PWD=1
+
+interactive() {
+   PWD1="a"
+   PWD2="b"
+   until [ $PWD1 == $PWD2 ]; do   
+       echo -n "Enter password: "
+       read PWD1
+       echo -n "Password again: "
+       read PWD2
+   done
+   PASS=$PWD1
+
+}
+
+
+# Parse arguments
+while getopts ":in:d:" opt; do
+    case $opt in
+        i)
+            INTERACTIVE=1
+            interactive
+            ;;
+        n)
+            NUM_PWD="$OPTARG"
+            ;;
+        d)
+            DIGITS_PWD="$OPTARG"
+            ;;
+       
+        \?)
+            set +x
+            echo "Invalid option: -$OPTARG" >&2
+            usage
+            exit 1
+            ;;
+        :)
+            set +x
+            echo "Option -$OPTARG requires an argument." >&2
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+shift $(($OPTIND - 1))
+echo $1
+if [ "$1" != "" ] && [ "$PASS" == "" ]
+then
+   PASS=$1
+fi
+
+if [ INTERACTIVE == false ] && [ "" == "$1" ]
+then
+        PASS=`pwgen -c -s -B -n $LENGTH_PWD $NUM_PWD `
+
 fi
 
 
+if [ $NUM_PWD -gt 1 ] && [ "$PASS" == "" ]
+then
+   for PASS in `pwgen -c -s -B -n $LENGTH_PWD $NUM_PWD`; do
 
-python -c 'import crypt; print(crypt.crypt("'$PASS'", "$6$'`pwgen -c -s -B -n 8 1`'"))'
+       SHA_SALTED=$(python -c 'import crypt; print(crypt.crypt("'$PASS'", "$6$'`pwgen -c -s -B -n 8 1`'"))')
+       MYSQL=$(python -c 'from hashlib import sha1; print "*" + sha1(sha1("'$PASS'").digest()).hexdigest().upper()')
+
+       echo "Your Password: $PASS"
+       echo "SHA salted: $SHA_SALTED"
+       echo "MySQL: $MYSQL"
+       echo "------"
+   done
+else
+       SHA_SALTED=$(python -c 'import crypt; print(crypt.crypt("'$PASS'", "$6$'`pwgen -c -s -B -n 8 1`'"))')
+       MYSQL=$(python -c 'from hashlib import sha1; print "*" + sha1(sha1("'$PASS'").digest()).hexdigest().upper()')
+
+       echo "Your Password: $PASS"
+       echo "SHA salted: $SHA_SALTED"
+       echo "MySQL: $MYSQL"
+fi
+
+
