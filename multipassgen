@@ -14,7 +14,7 @@ usage() {
 # define some variables
 PASS=""
 INTERACTIVE=0
-LENGTH_PWD=20
+DIGITS_PWD=20
 NUM_PWD=1
 
 # read password from prompt in interactive mode
